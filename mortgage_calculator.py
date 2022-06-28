@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QVBoxLayout, QHBoxLayout, QGridLayout, QPushButton, QListWidget
+from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QVBoxLayout, QHBoxLayout, QGridLayout, QPushButton, QListWidget, QMessageBox
 from PyQt6.QtGui import QIcon, QFont, QPixmap
 import sys
 
@@ -19,7 +19,10 @@ class Window(QWidget):
         self.setupGUI()
 
     def setupGUI(self):
-        self.loan_amount = QLineEdit('Total loan amount', self)
+
+        ### need to set only INT/FLOAT input ###
+
+        self.loan_amount = QLineEdit('Total loan amount', self)    
         self.interest_rate = QLineEdit('Annual interest rate', self)
         self.duration_years = QLineEdit('Duration in years', self)
 
@@ -59,17 +62,18 @@ class Window(QWidget):
         self.box.addWidget(self.interest_annual, 6, 1)
         self.box.addWidget(self.amortization_annual, 6, 2)
 
-
         self.setLayout(self.box)
 
         self.btn.clicked.connect(self.calculate)
 
 
     def calculate(self):
-        try: 
+        try:
             loan = float(self.loan_amount.text())
             interest = float(self.interest_rate.text()) / 100 / 12
             duration = float(self.duration_years.text()) * 12
+            if loan <= 0 or interest <= 0 or duration <= 0:
+                raise ValueError
             monthly_payment = loan * (interest * (1.0 + interest) ** duration) / ((1.0 + interest) ** duration - 1.0)
             show_monthly_payment = "{:.2f} CZK".format(monthly_payment)
             self.result_payment.setText(show_monthly_payment)
@@ -101,8 +105,13 @@ class Window(QWidget):
             self.amortization_annual.setFont(QFont('Arial', 14))
 
         except ValueError:
-            print('you have to fill the numbers!')
+            self.message = QMessageBox(self)
+            self.message.setWindowTitle("Info")
+            self.message.setText("You have to fill the positive numbers!")
+            self.message.exec()
 
+
+        ### can upgrade some more calculations ###
 
 app = QApplication([])
 window = Window()
