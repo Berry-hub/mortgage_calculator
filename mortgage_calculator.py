@@ -9,7 +9,7 @@ class Window(QWidget):
         self.setWindowTitle('Mortgage calculator')
         self.setWindowIcon(QIcon('money_icon.png'))
         self.setStyleSheet('background-color: tan')
-        self.setGeometry(500,200, 800,500)
+        self.setGeometry(500,200, 800,550)
 
         self.background = QLabel(self)
         pixmap = QPixmap('background.png')
@@ -19,8 +19,7 @@ class Window(QWidget):
         self.setupGUI()
 
     def setupGUI(self):
-
-        ### need to set only INT/FLOAT input ###
+        ### UPGRADE NEEDED >>> input erase text after click ###
 
         self.loan_amount = QLineEdit('Total loan amount', self)    
         self.interest_rate = QLineEdit('Annual interest rate', self)
@@ -30,6 +29,10 @@ class Window(QWidget):
         self.btn.setStyleSheet('background-color: pink')
         self.btn.setFont(QFont('Arial', 12))
         self.result_payment = QLabel('', self)
+
+        self.reset_btn = QPushButton('RESET', self)
+        self.reset_btn.setStyleSheet('background-color: red')
+        self.reset_btn.setFont(QFont('Arial', 12))
 
         self.month_label = QLabel('month', self)
         self.interest_label = QLabel('interest', self)
@@ -50,6 +53,7 @@ class Window(QWidget):
         self.box.addWidget(self.interest_rate, 1, 0)
         self.box.addWidget(self.duration_years, 2, 0)
         self.box.addWidget(self.btn, 1, 1)
+        self.box.addWidget(self.reset_btn, 7, 3)
         self.box.addWidget(self.result_payment, 2, 1)
         self.box.addWidget(self.month_label, 4, 0)
         self.box.addWidget(self.interest_label, 4, 1)
@@ -65,6 +69,7 @@ class Window(QWidget):
         self.setLayout(self.box)
 
         self.btn.clicked.connect(self.calculate)
+        self.reset_btn.clicked.connect(self.reset)
 
 
     def calculate(self):
@@ -75,7 +80,7 @@ class Window(QWidget):
             if loan <= 0 or interest <= 0 or duration <= 0:
                 raise ValueError
             monthly_payment = loan * (interest * (1.0 + interest) ** duration) / ((1.0 + interest) ** duration - 1.0)
-            show_monthly_payment = "{:.2f} CZK".format(monthly_payment)
+            show_monthly_payment = "{:.2f} $".format(monthly_payment)
             self.result_payment.setText(show_monthly_payment)
             self.result_payment.setFont(QFont('Arial', 18))
 
@@ -90,16 +95,16 @@ class Window(QWidget):
             list_interest_str  = []
             list_amortization_str = []
             for value in list_interest:
-                list_interest_str.append(str("{:.2f} CZK".format(value)))
+                list_interest_str.append(str("{:.2f} $".format(value)))
             for value in list_amortization:
-                list_amortization_str.append(str("{:.2f} CZK".format(value)))
+                list_amortization_str.append(str("{:.2f} $".format(value)))
             self.show_interest.addItems(list_interest_str)
             self.show_amortization.addItems(list_amortization_str)
             self.show_month.addItems(list_month)
 
             self.anum.setText('per anum')
-            self.interest_annual.setText(str('{:.2f} CZK'.format(sum(list_interest))))
-            self.amortization_annual.setText(str('{:.2f} CZK'.format(sum(list_amortization))))
+            self.interest_annual.setText(str('{:.2f} $'.format(sum(list_interest))))
+            self.amortization_annual.setText(str('{:.2f} $'.format(sum(list_amortization))))
             self.anum.setFont(QFont('Arial', 14))
             self.interest_annual.setFont(QFont('Arial', 14))
             self.amortization_annual.setFont(QFont('Arial', 14))
@@ -109,6 +114,17 @@ class Window(QWidget):
             self.message.setWindowTitle("Info")
             self.message.setText("You have to fill the positive numbers!")
             self.message.exec()
+
+
+    def reset(self):    # clear result windows for new input
+        self.result_payment.clear()
+        self.show_month.clear()
+        self.show_interest.clear()
+        self.show_amortization.clear()
+        self.interest_annual.clear()
+        self.amortization_annual.clear()
+
+
 
 
         ### can upgrade some more calculations ###
